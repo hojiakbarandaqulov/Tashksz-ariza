@@ -77,11 +77,8 @@ public final class BotKeyboards {
     public static Map<String, Object> draftConfirmation() {
         return Map.of("inline_keyboard", List.of(
                 List.of(inline("✅ Yuborish", "draft:submit")),
-                List.of(
-                        inline("🗺 Hudud", edit(DraftField.REGION)),
-                        inline("📞 Telefon", edit(DraftField.PHONE))
-                ),
-                List.of(inline("🏢 Korxona va tavsif", edit(DraftField.APPLICATION_DETAILS))),
+                List.of(inline("🗺 Hudud", edit(DraftField.REGION))),
+                List.of(inline("📝 Ariza", edit(DraftField.APPLICATION_DETAILS))),
                 List.of(inline("❌ Bekor qilish", "draft:cancel"))
         ));
     }

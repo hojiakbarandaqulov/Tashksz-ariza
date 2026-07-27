@@ -25,9 +25,7 @@ public class DescriptionStepHandler implements ConversationStepHandler {
             return StepResult.error(supportedStep(), error.get());
         }
         conversation.setDescription(validator.clean(input.text()));
-        conversation.moveTo(conversation.getPhone() == null
-                ? ConversationStep.WAITING_PHONE
-                : ConversationStep.CONFIRMING);
+        conversation.moveTo(ConversationStep.CONFIRMING);
         return StepResult.success(conversation.getStep());
     }
 }

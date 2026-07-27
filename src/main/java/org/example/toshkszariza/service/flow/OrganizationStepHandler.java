@@ -27,9 +27,7 @@ public class OrganizationStepHandler implements ConversationStepHandler {
         conversation.setOrganizationName(validator.clean(input.text()));
         // Captionsiz media (ayniqsa video-xabar) yuborilganda tavsif media turidan tayyor bo'ladi.
         if (conversation.getAttachmentType() != null && conversation.getDescription() != null) {
-            conversation.moveTo(conversation.getPhone() == null
-                    ? ConversationStep.WAITING_PHONE
-                    : ConversationStep.CONFIRMING);
+            conversation.moveTo(ConversationStep.CONFIRMING);
         } else {
             conversation.moveTo(ConversationStep.WAITING_DESCRIPTION);
         }

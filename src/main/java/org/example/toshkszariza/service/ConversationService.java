@@ -90,6 +90,13 @@ public class ConversationService {
             String attachmentFileId
     ) {
         UserConversation conversation = getOrCreate(chatId, userId);
+        // Eski versiyada telefon kutish bosqichida qolgan arizalarni telefonsiz tasdiqlashga o'tkazadi.
+        if (conversation.getStep() == ConversationStep.WAITING_PHONE
+                && conversation.getOrganizationName() != null
+                && conversation.getDescription() != null) {
+            conversation.moveTo(ConversationStep.CONFIRMING);
+            return new FlowOutcome(StepResult.success(ConversationStep.CONFIRMING), toDraft(conversation));
+        }
         ConversationStepHandler handler = handlers.get(conversation.getStep());
         if (handler == null) {
             return new FlowOutcome(
@@ -199,7 +206,6 @@ public class ConversationService {
 
     private boolean isComplete(UserConversation conversation) {
         return conversation.getRegion() != null
-                && conversation.getPhone() != null
                 && conversation.getOrganizationName() != null
                 && conversation.getDescription() != null;
     }

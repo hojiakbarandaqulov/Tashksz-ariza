@@ -117,11 +117,9 @@ class ApplicationFlowIntegrationTest {
                 ApplicationAttachmentType.VIDEO_NOTE,
                 "video-note-file-id"
         );
-        assertThat(videoNote.result().currentStep()).isEqualTo(ConversationStep.WAITING_ORGANIZATION);
-        assertStep(videoNoteUser, "Video note company", ConversationStep.WAITING_PHONE);
-        assertStep(videoNoteUser, "+998 93 765 43 21", ConversationStep.CONFIRMING);
+        assertThat(videoNote.result().currentStep()).isEqualTo(ConversationStep.CONFIRMING);
         ApplicationView submitted = conversationService.submit(videoNoteUser, videoNoteUser, "video_note_user");
-        assertThat(submitted.phone()).isEqualTo("+998 93 765 43 21");
+        assertThat(submitted.phone()).isNull();
         assertThat(submitted.attachmentType()).isEqualTo(ApplicationAttachmentType.VIDEO_NOTE);
         assertThat(submitted.attachmentFileId()).isEqualTo("video-note-file-id");
 
@@ -194,19 +192,18 @@ class ApplicationFlowIntegrationTest {
     }
 
     @Test
-    void oldTwoLineFormatAsksPhoneSeparatelyWithoutBreakingTheFlow() {
+    void twoLineFormatIsConfirmedWithoutAskingPhone() {
         long userId = 601L;
         conversationService.startNew(userId, userId);
         assertStep(userId, "Uchtepa KSZ", ConversationStep.WAITING_APPLICATION_DETAILS);
         assertStep(
                 userId,
                 "Eski format korxonasi\nTransformator yonida texnik nosozlik bor.",
-                ConversationStep.WAITING_PHONE
+                ConversationStep.CONFIRMING
         );
-        assertStep(userId, "90 321 45 67", ConversationStep.CONFIRMING);
 
         ApplicationView submitted = conversationService.submit(userId, userId, "legacy_user");
-        assertThat(submitted.phone()).isEqualTo("90 321 45 67");
+        assertThat(submitted.phone()).isNull();
     }
 
     @Test
@@ -215,17 +212,14 @@ class ApplicationFlowIntegrationTest {
         conversationService.startNew(userId, userId);
         assertStep(userId, "Yunusobod KSZ", ConversationStep.WAITING_APPLICATION_DETAILS);
 
-        // Faqat kompaniya yuborilsa, bot qolgan ma'lumotlarni ketma-ket so'raydi.
-        assertStep(userId, "Asia polymer system mchj", ConversationStep.WAITING_DESCRIPTION);
         assertStep(userId,
                 "6 blok yonida transformatorda nosozlik",
-                ConversationStep.WAITING_PHONE);
-        assertStep(userId, "90 777 66 55", ConversationStep.CONFIRMING);
+                ConversationStep.CONFIRMING);
 
         ApplicationView submitted = conversationService.submit(userId, userId, "flexible_user");
-        assertThat(submitted.organizationName()).isEqualTo("Asia polymer system mchj");
+        assertThat(submitted.organizationName()).isEqualTo("Ko'rsatilmagan");
         assertThat(submitted.description()).isEqualTo("6 blok yonida transformatorda nosozlik");
-        assertThat(submitted.phone()).isEqualTo("90 777 66 55");
+        assertThat(submitted.phone()).isNull();
     }
 
     @Test

@@ -14,4 +14,13 @@ class BotKeyboardsTest {
                 .doesNotContain("Kutilayotgan arizalar")
                 .contains("Xabar yuborish", "7 kunlik hisobot");
     }
+
+    @Test
+    void draftMenuDoesNotAskForPhone() {
+        String menu = BotKeyboards.draftConfirmation().toString();
+
+        assertThat(menu)
+                .doesNotContain("Telefon")
+                .contains("Ariza", "Hudud", "Yuborish");
+    }
 }
