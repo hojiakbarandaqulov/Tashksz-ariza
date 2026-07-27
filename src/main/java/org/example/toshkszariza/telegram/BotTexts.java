@@ -50,7 +50,7 @@ public final class BotTexts {
             case WAITING_REGION -> "📍 <b>Hududni tanlang:</b>";
             case WAITING_CATEGORY -> "📌 <b>Kategoriyani</b> tanlang:";
             case WAITING_DESCRIPTION -> "📝 Muammoni batafsil <b>tavsiflang</b> (10–2000 belgi):";
-            case WAITING_APPLICATION_DETAILS -> "📝 <b>Arizangizni yozing:</b>\n\n"
+            case WAITING_APPLICATION_DETAILS -> "🏢 <b>Kompaniya nomi, telefon va arizani yozing:</b>\n\n"
                     + "📎 Arizani <b>rasm, video yoki video-xabar</b> shaklida ham yuborishingiz mumkin.";
             case CONFIRMING -> "Ma'lumotlarni tekshirib, «Yuborish» tugmasini bosing.";
             case IDLE -> "Yangi ariza boshlash uchun pastdagi tugmani bosing.";

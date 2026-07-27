@@ -12,6 +12,7 @@ import java.util.List;
 /** Korxona, ariza va telefonni qat'iy qator soniga bog'lamasdan qabul qiladi. */
 @Component
 public class ApplicationDetailsStepHandler implements ConversationStepHandler {
+    private static final String ORGANIZATION_NOT_PROVIDED = "Ko'rsatilmagan";
     private final InputValidator validator;
 
     public ApplicationDetailsStepHandler(InputValidator validator) {
@@ -31,7 +32,12 @@ public class ApplicationDetailsStepHandler implements ConversationStepHandler {
 
         List<String> parts = flexibleParts(input.text());
         if (parts.isEmpty()) {
-            return StepResult.error(supportedStep(), "Kompaniya nomini va arizani yozib yuboring.");
+            return StepResult.error(supportedStep(), "Arizangizni yozib yuboring.");
+        }
+
+        // Bitta oddiy xabarning o'zi ariza hisoblanadi; telefon keyin alohida so'ralmaydi.
+        if (parts.size() == 1) {
+            return savePlainApplication(conversation, parts.get(0));
         }
 
         StepResult organizationResult = saveOrganization(conversation, parts.get(0));
@@ -50,8 +56,20 @@ public class ApplicationDetailsStepHandler implements ConversationStepHandler {
 
         List<String> parts = flexibleParts(input.text());
         if (parts.isEmpty()) {
-            conversation.moveTo(ConversationStep.WAITING_ORGANIZATION);
-            return StepResult.success(conversation.getStep());
+            conversation.setOrganizationName(ORGANIZATION_NOT_PROVIDED);
+            conversation.moveTo(ConversationStep.CONFIRMING);
+            return StepResult.success(ConversationStep.CONFIRMING);
+        }
+
+        // Media izohidagi bitta matn ham tayyor ariza sifatida qabul qilinadi.
+        if (parts.size() == 1) {
+            conversation.setOrganizationName(ORGANIZATION_NOT_PROVIDED);
+            String description = removePrefix(parts.get(0), "tavsif:", "ariza:", "ariza matni:");
+            if (validator.validateDescription(description).isEmpty()) {
+                conversation.setDescription(validator.clean(description));
+            }
+            conversation.moveTo(ConversationStep.CONFIRMING);
+            return StepResult.success(ConversationStep.CONFIRMING);
         }
 
         StepResult organizationResult = saveOrganization(conversation, parts.get(0));
@@ -119,12 +137,22 @@ public class ApplicationDetailsStepHandler implements ConversationStepHandler {
     private StepResult advance(UserConversation conversation) {
         if (conversation.getDescription() == null) {
             conversation.moveTo(ConversationStep.WAITING_DESCRIPTION);
-        } else if (conversation.getPhone() == null) {
-            conversation.moveTo(ConversationStep.WAITING_PHONE);
         } else {
             conversation.moveTo(ConversationStep.CONFIRMING);
         }
         return StepResult.success(conversation.getStep());
+    }
+
+    private StepResult savePlainApplication(UserConversation conversation, String value) {
+        String description = removePrefix(value, "tavsif:", "ariza:", "ariza matni:");
+        var error = validator.validateDescription(description);
+        if (error.isPresent()) {
+            return StepResult.error(supportedStep(), error.get());
+        }
+        conversation.setOrganizationName(ORGANIZATION_NOT_PROVIDED);
+        conversation.setDescription(validator.clean(description));
+        conversation.moveTo(ConversationStep.CONFIRMING);
+        return StepResult.success(ConversationStep.CONFIRMING);
     }
 
     /** Yangi qator majburiy emas: nuqtali vergul va | belgisi ham ajratuvchi bo'la oladi. */
