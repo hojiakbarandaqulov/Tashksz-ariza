@@ -8,11 +8,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 class BotTextsTest {
 
     @Test
-    void applicationPromptHasNoPhoneOrThreeLineInstruction() {
+    void applicationPromptHasRequestedHeadingWithoutThreeLineInstruction() {
         String prompt = BotTexts.prompt(ConversationStep.WAITING_APPLICATION_DETAILS);
 
         assertThat(prompt)
-                .contains("Arizangizni yozing")
-                .doesNotContain("telefon", "+998", "3 qator", "Asia polymer");
+                .startsWith("🏢 <b>Kompaniya nomi, telefon va arizani yozing:</b>")
+                .doesNotContain("+998", "3 qator", "Asia polymer");
     }
 }
