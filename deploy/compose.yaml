@@ -1,0 +1,21 @@
+services:
+  toshksz-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: toshksz-bot:latest
+    container_name: toshksz-bot
+    # PostgreSQL hostning 127.0.0.1:5432 manzilida ishlayotgani uchun Linux host network ishlatiladi.
+    network_mode: host
+    env_file:
+      - ./toshksz-bot.env
+    restart: unless-stopped
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,noexec,nosuid
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    stop_grace_period: 30s
