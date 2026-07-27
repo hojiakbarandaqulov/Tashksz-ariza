@@ -5,6 +5,8 @@ qoldiriladi. PostgreSQL 5432 portini internetga ochish kerak emas.
 
 Bot konteyneri `network_mode: host` bilan ishlaydi. Bu Linux serverda konteynerga hostdagi
 `127.0.0.1:5432` PostgreSQLga ulanish imkonini beradi. Bot hech qanday port ochmaydi.
+Konteyner non-root `bot` foydalanuvchisi ostida ishlaydi. Ayrim VPS yadrolarida Java'ni
+bloklaydigan qo'shimcha Compose cheklovlari qo'llanilmagan.
 
 ## 1. Loyiha va muhitni tayyorlash
 
