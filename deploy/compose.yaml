@@ -1,8 +1,9 @@
 services:
   toshksz-bot:
     build:
-      context: .
-      dockerfile: Dockerfile
+      # Docker JARni o'zi yig'ishi uchun build konteksti loyiha ildizi bo'ladi.
+      context: ..
+      dockerfile: deploy/Dockerfile
     image: toshksz-bot:latest
     container_name: toshksz-bot
     # PostgreSQL hostning 127.0.0.1:5432 manzilida ishlayotgani uchun Linux host network ishlatiladi.
@@ -10,7 +11,6 @@ services:
     env_file:
       - ./toshksz-bot.env
     restart: unless-stopped
-    init: true
     read_only: true
     tmpfs:
       - /tmp:size=64m,noexec,nosuid

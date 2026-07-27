@@ -6,14 +6,14 @@ qoldiriladi. PostgreSQL 5432 portini internetga ochish kerak emas.
 Bot konteyneri `network_mode: host` bilan ishlaydi. Bu Linux serverda konteynerga hostdagi
 `127.0.0.1:5432` PostgreSQLga ulanish imkonini beradi. Bot hech qanday port ochmaydi.
 
-## 1. Paketni tayyorlash
+## 1. Loyiha va muhitni tayyorlash
 
-Server paketini `/opt/toshksz-bot` ichiga oching:
+Docker JARni o'zi yig'ishi uchun serverda loyihaning `src`, `gradle`, `gradlew`,
+`build.gradle`, `settings.gradle` va `deploy` fayllari mavjud bo'lishi kerak.
+Loyihaning `deploy` papkasiga o'ting:
 
 ```bash
-install -d -m 750 /opt/toshksz-bot
-unzip /root/toshksz-bot-server.zip -d /opt/toshksz-bot
-cd /opt/toshksz-bot
+cd /opt/toshksz-bot/Tashksz-ariza/deploy
 cp toshksz-bot.env.example toshksz-bot.env
 chmod 600 toshksz-bot.env
 nano toshksz-bot.env
@@ -28,17 +28,19 @@ DB_URL=jdbc:postgresql://127.0.0.1:5432/Tashksz-bot-db
 ## 2. Docker Compose bilan ishga tushirish
 
 ```bash
-docker compose build
-docker compose up -d
+docker compose up -d --build
 docker compose ps
 docker compose logs -f --tail=200
 ```
 
-Yangilangan `app.jar` yuklanganda:
+Kod yangilanganda ham shu buyruq JARni Docker ichida qayta yaratadi va konteynerni yangilaydi:
 
 ```bash
 docker compose up -d --build
 ```
+
+Oddiy `docker compose restart` mavjud image'ni qayta ishga tushiradi va JARni qayta
+yig'maydi. Production serverda har bir restartda kompilyatsiya qilish shart emas.
 
 To'xtatish:
 
