@@ -21,8 +21,7 @@ public final class BotKeyboards {
         List<List<Map<String, Object>>> rows = new ArrayList<>();
         rows.add(List.of(button("📥 Yangi ariza"), button("📋 Arizalarim")));
         if (admin) {
-            rows.add(List.of(button("🗂 Kutilayotgan arizalar"), button("📣 Xabar yuborish")));
-            rows.add(List.of(button("📊 7 kunlik hisobot")));
+            rows.add(List.of(button("📣 Xabar yuborish"), button("📊 7 kunlik hisobot")));
         }
         if (superAdmin) {
             rows.add(List.of(button("👥 Adminlar"), button("➕ Admin qo'shish")));
@@ -80,8 +79,9 @@ public final class BotKeyboards {
                 List.of(inline("✅ Yuborish", "draft:submit")),
                 List.of(
                         inline("🗺 Hudud", edit(DraftField.REGION)),
-                        inline("🏢 Korxona va tavsif", edit(DraftField.APPLICATION_DETAILS))
+                        inline("📞 Telefon", edit(DraftField.PHONE))
                 ),
+                List.of(inline("🏢 Korxona va tavsif", edit(DraftField.APPLICATION_DETAILS))),
                 List.of(inline("❌ Bekor qilish", "draft:cancel"))
         ));
     }

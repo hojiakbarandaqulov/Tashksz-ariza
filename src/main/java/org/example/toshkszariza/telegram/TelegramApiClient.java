@@ -142,7 +142,6 @@ public class TelegramApiClient {
         commands.add(Map.of("command", "id", "description", "Telegram ID raqamim"));
         commands.add(Map.of("command", "cancel", "description", "Joriy amalni bekor qilish"));
         commands.add(Map.of("command", "help", "description", "Yordam"));
-        commands.add(Map.of("command", "pending", "description", "Admin: kutilayotgan arizalar"));
         commands.add(Map.of("command", "broadcast", "description", "Admin: barcha userlarga xabar"));
         commands.add(Map.of("command", "week", "description", "Admin: 7 kunlik hisobot"));
         commands.add(Map.of("command", "bind", "description", "Bosh admin: guruh/kanalni bog'lash"));

@@ -470,8 +470,8 @@ public class TelegramUpdateHandler {
                     application,
                     true
             );
-            return;
         }
+        // Guruh bog'langan bo'lsa ham, har bir admin yangi arizani private chatida avtomatik oladi.
         adminService.adminChatIds().forEach(adminChatId -> sendApplicationToAdmin(
                 new TelegramDestination(adminChatId, null, null),
                 application,

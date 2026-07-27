@@ -41,11 +41,12 @@ class ApplicationFlowIntegrationTest {
         conversationService.startNew(CHAT_ID, USER_ID);
         assertStep("Chilonzor KSZ", ConversationStep.WAITING_APPLICATION_DETAILS);
         assertStep(
-                "Toshkent shahar korxonasi\nElektr tarmog'ida uzilish kuzatilmoqda.",
+                "Toshkent shahar korxonasi\nElektr tarmog'ida uzilish kuzatilmoqda.\n+998 90 123 45 67",
                 ConversationStep.CONFIRMING
         );
 
         ApplicationView firstSubmission = conversationService.submit(CHAT_ID, USER_ID, "anvar");
+        assertThat(firstSubmission.phone()).isEqualTo("+998 90 123 45 67");
         assertThat(firstSubmission.status()).isEqualTo(ApplicationStatus.PENDING);
         assertThat(firstSubmission.revision()).isEqualTo(1);
         assertThat(applicationService.userApplications(USER_ID))
@@ -117,8 +118,10 @@ class ApplicationFlowIntegrationTest {
                 "video-note-file-id"
         );
         assertThat(videoNote.result().currentStep()).isEqualTo(ConversationStep.WAITING_ORGANIZATION);
-        assertStep(videoNoteUser, "Video note company", ConversationStep.CONFIRMING);
+        assertStep(videoNoteUser, "Video note company", ConversationStep.WAITING_PHONE);
+        assertStep(videoNoteUser, "+998 93 765 43 21", ConversationStep.CONFIRMING);
         ApplicationView submitted = conversationService.submit(videoNoteUser, videoNoteUser, "video_note_user");
+        assertThat(submitted.phone()).isEqualTo("+998 93 765 43 21");
         assertThat(submitted.attachmentType()).isEqualTo(ApplicationAttachmentType.VIDEO_NOTE);
         assertThat(submitted.attachmentFileId()).isEqualTo("video-note-file-id");
 
@@ -141,7 +144,9 @@ class ApplicationFlowIntegrationTest {
         conversationService.registerUser(groupId, topicUser, 77, null, false);
         conversationService.startNew(groupId, topicUser);
         assertStep(topicUser, "Bektemir KSZ", ConversationStep.WAITING_APPLICATION_DETAILS);
-        assertStep(topicUser, "Topic company\nGuruh mavzusidagi ariza matni.", ConversationStep.CONFIRMING);
+        assertStep(topicUser,
+                "Topic company\nGuruh mavzusidagi ariza matni.\n+998 90 111 22 33",
+                ConversationStep.CONFIRMING);
         ApplicationView topicApplication = conversationService.submit(groupId, topicUser, "topic_user");
         assertThat(topicApplication.userChatId()).isEqualTo(groupId);
         assertThat(topicApplication.userMessageThreadId()).isEqualTo(77);
@@ -150,7 +155,9 @@ class ApplicationFlowIntegrationTest {
         conversationService.registerUser(groupId, directMessageUser, null, 88, false);
         conversationService.startNew(groupId, directMessageUser);
         assertStep(directMessageUser, "Sergeli KSZ", ConversationStep.WAITING_APPLICATION_DETAILS);
-        assertStep(directMessageUser, "DM company\nKanal direct messages arizasi.", ConversationStep.CONFIRMING);
+        assertStep(directMessageUser,
+                "DM company\n+998 91 222 33 44\nKanal direct messages arizasi.",
+                ConversationStep.CONFIRMING);
         ApplicationView directApplication = conversationService.submit(
                 groupId,
                 directMessageUser,
@@ -169,13 +176,37 @@ class ApplicationFlowIntegrationTest {
     ) {
         conversationService.startNew(userId, userId);
         assertStep(userId, "Bektemir KSZ", ConversationStep.WAITING_APPLICATION_DETAILS);
-        FlowOutcome media = conversationService.handleInput(userId, userId, company, null, type, fileId);
+        FlowOutcome media = conversationService.handleInput(
+                userId,
+                userId,
+                company + "\n+998 90 555 66 77",
+                null,
+                type,
+                fileId
+        );
         assertThat(media.result().currentStep()).isEqualTo(ConversationStep.CONFIRMING);
 
         ApplicationView submitted = conversationService.submit(userId, userId, "media_user");
         assertThat(submitted.organizationName()).isEqualTo(company);
+        assertThat(submitted.phone()).isEqualTo("+998 90 555 66 77");
         assertThat(submitted.attachmentType()).isEqualTo(type);
         assertThat(submitted.attachmentFileId()).isEqualTo(fileId);
+    }
+
+    @Test
+    void oldTwoLineFormatAsksPhoneSeparatelyWithoutBreakingTheFlow() {
+        long userId = 601L;
+        conversationService.startNew(userId, userId);
+        assertStep(userId, "Uchtepa KSZ", ConversationStep.WAITING_APPLICATION_DETAILS);
+        assertStep(
+                userId,
+                "Eski format korxonasi\nTransformator yonida texnik nosozlik bor.",
+                ConversationStep.WAITING_PHONE
+        );
+        assertStep(userId, "90 321 45 67", ConversationStep.CONFIRMING);
+
+        ApplicationView submitted = conversationService.submit(userId, userId, "legacy_user");
+        assertThat(submitted.phone()).isEqualTo("+998 90 321 45 67");
     }
 
     private void assertStep(String input, ConversationStep expectedStep) {
