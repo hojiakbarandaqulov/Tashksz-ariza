@@ -6,7 +6,7 @@ Spring Boot va Java 17 da yozilgan arizalarni qabul qilish boti. Foydalanuvchi a
 
 - Buyurtmachi belgilagan 9 ta KSZ hududini chiroyli tugmalar orqali tanlash.
 - Hududni har bir foydalanuvchidan faqat bir marta so'rash va keyingi arizalarda avtomatik qo'yish.
-- Korxona nomi va ariza tavsifini bitta xabarda, ikki qatorda qabul qilish.
+- Korxona nomi, telefon raqami va ariza tavsifini bitta xabarda, uch qatorda qabul qilish.
 - Har bir Telegram foydalanuvchisiga faqat o'z arizalarini `/my` va `📋 Arizalarim` orqali ko'rsatish.
 - Admin yozgan umumiy xabarni preview va tasdiqlashdan keyin barcha userlarga fon rejimida yuborish.
 - Ariza qabul qilinganda yoki qaytarilganda natijani aynan ariza egasiga yetkazish.

@@ -25,7 +25,15 @@ public class PhoneStepHandler implements ConversationStepHandler {
             return StepResult.error(supportedStep(), "Telefonni +998 90 123 45 67 ko'rinishida yuboring.");
         }
         conversation.setPhone(phone.get());
-        conversation.moveTo(ConversationStep.WAITING_REGION);
+        if (conversation.getRegion() == null) {
+            conversation.moveTo(ConversationStep.WAITING_REGION);
+        } else if (conversation.getOrganizationName() == null) {
+            conversation.moveTo(ConversationStep.WAITING_APPLICATION_DETAILS);
+        } else if (conversation.getDescription() == null) {
+            conversation.moveTo(ConversationStep.WAITING_DESCRIPTION);
+        } else {
+            conversation.moveTo(ConversationStep.CONFIRMING);
+        }
         return StepResult.success(conversation.getStep());
     }
 }

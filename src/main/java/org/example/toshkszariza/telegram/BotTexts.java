@@ -50,11 +50,12 @@ public final class BotTexts {
             case WAITING_REGION -> "📍 <b>Hududni tanlang:</b>";
             case WAITING_CATEGORY -> "📌 <b>Kategoriyani</b> tanlang:";
             case WAITING_DESCRIPTION -> "📝 Muammoni batafsil <b>tavsiflang</b> (10–2000 belgi):";
-            case WAITING_APPLICATION_DETAILS -> "🏢 <b>Kompaniya nomini kiriting va arizani yozing:</b>\n\n"
-                    + "Bitta xabarda 2 qator qilib yuboring:\n"
-                    + "<code>Asia polymer system mchj\n6 blok yonida transformatorda nosozlik</code>\n\n"
+            case WAITING_APPLICATION_DETAILS -> "🏢 <b>Kompaniya nomi, telefon va arizani yozing:</b>\n\n"
+                    + "Bitta xabarda 3 qator qilib yuboring:\n"
+                    + "<code>Asia polymer system mchj\n+998 90 123 45 67\n"
+                    + "6 blok yonida transformatorda nosozlik</code>\n\n"
                     + "📎 Arizani <b>rasm, video yoki video-xabar</b> shaklida ham yuborishingiz mumkin. "
-                    + "Rasm/video izohiga kompaniya nomini yozing.";
+                    + "Rasm/video izohiga kompaniya, telefon va tavsifni 3 qatorda yozing.";
             case CONFIRMING -> "Ma'lumotlarni tekshirib, «Yuborish» tugmasini bosing.";
             case IDLE -> "Yangi ariza boshlash uchun pastdagi tugmani bosing.";
         };
@@ -66,6 +67,7 @@ public final class BotTexts {
                 : "✏️ <b>Ariza #" + number(draft.editingApplicationId()) + " — yangi tahrir</b>";
         return heading + ":\n\n"
                 + "🗺 <b>Hudud:</b> " + escape(draft.region() == null ? "" : draft.region().label()) + "\n"
+                + "📞 <b>Telefon:</b> " + escape(phoneLabel(draft.phone())) + "\n"
                 + "🏢 <b>Korxona nomi:</b> " + escape(draft.organizationName()) + "\n"
                 + "📝 <b>Tavsif:</b> " + escape(draft.description())
                 + attachmentLine(draft.attachmentType()) + "\n\n"
@@ -76,6 +78,7 @@ public final class BotTexts {
         StringBuilder text = new StringBuilder("📥 <b>Yangi ariza:</b> #")
                 .append(number(application.id())).append("\n\n")
                 .append("🗺 <b>Hudud:</b> ").append(escape(regionLabel(application))).append("\n")
+                .append("📞 <b>Telefon:</b> ").append(escape(phoneLabel(application.phone()))).append("\n")
                 .append("🏢 <b>Korxona nomi:</b> ").append(escape(application.organizationName())).append("\n")
                 .append("📝 <b>Tavsif:</b> ").append(escape(application.description()))
                 .append(attachmentLine(application.attachmentType())).append("\n\n")
@@ -102,6 +105,7 @@ public final class BotTexts {
                     .append(" <b>#").append(number(application.id())).append("</b> — ")
                     .append(escape(regionLabel(application))).append("\n")
                     .append("Korxona: ").append(escape(application.organizationName())).append("\n")
+                    .append("Telefon: ").append(escape(phoneLabel(application.phone()))).append("\n")
                     .append("Holat: ").append(escape(application.status().label()));
             if (application.rejectionReason() != null) {
                 text.append("\nSabab: ").append(escape(application.rejectionReason()));
@@ -140,6 +144,10 @@ public final class BotTexts {
 
     private static String regionLabel(ApplicationView application) {
         return application.region() == null ? "Ko'rsatilmagan (eski ariza)" : application.region().label();
+    }
+
+    private static String phoneLabel(String phone) {
+        return phone == null || phone.isBlank() ? "Ko'rsatilmagan (eski ariza)" : phone;
     }
 
     private static String number(long id) {

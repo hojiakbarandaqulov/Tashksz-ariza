@@ -199,6 +199,7 @@ public class ConversationService {
 
     private boolean isComplete(UserConversation conversation) {
         return conversation.getRegion() != null
+                && conversation.getPhone() != null
                 && conversation.getOrganizationName() != null
                 && conversation.getDescription() != null;
     }

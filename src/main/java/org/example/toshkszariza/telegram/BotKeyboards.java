@@ -80,8 +80,9 @@ public final class BotKeyboards {
                 List.of(inline("✅ Yuborish", "draft:submit")),
                 List.of(
                         inline("🗺 Hudud", edit(DraftField.REGION)),
-                        inline("🏢 Korxona va tavsif", edit(DraftField.APPLICATION_DETAILS))
+                        inline("📞 Telefon", edit(DraftField.PHONE))
                 ),
+                List.of(inline("🏢 Korxona va tavsif", edit(DraftField.APPLICATION_DETAILS))),
                 List.of(inline("❌ Bekor qilish", "draft:cancel"))
         ));
     }
