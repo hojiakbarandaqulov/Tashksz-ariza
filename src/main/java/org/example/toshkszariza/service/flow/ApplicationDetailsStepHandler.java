@@ -5,7 +5,7 @@ import org.example.toshkszariza.domain.UserConversation;
 import org.example.toshkszariza.service.InputValidator;
 import org.springframework.stereotype.Component;
 
-/** Korxona nomi, ariza tavsifi va telefonni foydalanuvchining bitta xabaridan ajratadi. */
+/** Korxona nomi va ariza tavsifini foydalanuvchining bitta xabaridan ajratadi. */
 @Component
 public class ApplicationDetailsStepHandler implements ConversationStepHandler {
     private final InputValidator validator;
@@ -52,6 +52,17 @@ public class ApplicationDetailsStepHandler implements ConversationStepHandler {
             // Eski 2 qatorli format ham buzilmaydi; telefon keyingi bosqichda alohida so'raladi.
             description = removePrefix(parts[1], "tavsif:", "ariza:", "ariza matni:");
         }
+        if (parts.length == 3) {
+            phone = normalizePhone(parts[1]);
+            if (phone == null) {
+                return StepResult.error(supportedStep(),
+                        "Telefonni +998 90 123 45 67 ko'rinishida ikkinchi qatorga yozing.");
+            }
+            description = removePrefix(parts[2], "tavsif:", "ariza:", "ariza matni:");
+        } else {
+            // Eski 2 qatorli format ham buzilmaydi; telefon keyingi bosqichda alohida so'raladi.
+            description = removePrefix(parts[1], "tavsif:", "ariza:", "ariza matni:");
+        }
 
         var organizationError = validator.validateOrganization(organization);
         if (organizationError.isPresent()) {
@@ -88,19 +99,12 @@ public class ApplicationDetailsStepHandler implements ConversationStepHandler {
         String phone = null;
         String description = input.attachmentType().defaultDescription();
         if (parts.length == 3) {
-            // Media izohida ham telefon ariza matnidan keyin yoziladi.
-            phone = normalizePhone(parts[2]);
-            if (phone != null) {
-                description = removePrefix(parts[1], "tavsif:", "ariza:", "ariza matni:");
-            } else {
-                phone = normalizePhone(parts[1]);
-                if (phone == null) {
-                    return StepResult.error(supportedStep(),
-                            "Telefon raqamingizni ariza matnidan keyin uchinchi qatorga "
-                                    + "+998 90 123 45 67 ko'rinishida yozib qoldiring.");
-                }
-                description = removePrefix(parts[2], "tavsif:", "ariza:", "ariza matni:");
+            phone = normalizePhone(parts[1]);
+            if (phone == null) {
+                return StepResult.error(supportedStep(),
+                        "Telefonni +998 90 123 45 67 ko'rinishida ikkinchi qatorga yozing.");
             }
+            description = removePrefix(parts[2], "tavsif:", "ariza:", "ariza matni:");
         } else if (parts.length == 2) {
             phone = normalizePhone(parts[1]);
             if (phone == null) {
@@ -118,9 +122,6 @@ public class ApplicationDetailsStepHandler implements ConversationStepHandler {
         }
 
         conversation.setOrganizationName(validator.clean(organization));
-        if (phone != null) {
-            conversation.setPhone(phone);
-        }
         conversation.setDescription(validator.clean(description));
         conversation.moveTo(conversation.getPhone() == null
                 ? ConversationStep.WAITING_PHONE

@@ -41,7 +41,7 @@ class ApplicationFlowIntegrationTest {
         conversationService.startNew(CHAT_ID, USER_ID);
         assertStep("Chilonzor KSZ", ConversationStep.WAITING_APPLICATION_DETAILS);
         assertStep(
-                "Toshkent shahar korxonasi\nElektr tarmog'ida uzilish kuzatilmoqda.\n+998 90 123 45 67",
+                "Toshkent shahar korxonasi\n+998 90 123 45 67\nElektr tarmog'ida uzilish kuzatilmoqda.",
                 ConversationStep.CONFIRMING
         );
 
@@ -145,7 +145,7 @@ class ApplicationFlowIntegrationTest {
         conversationService.startNew(groupId, topicUser);
         assertStep(topicUser, "Bektemir KSZ", ConversationStep.WAITING_APPLICATION_DETAILS);
         assertStep(topicUser,
-                "Topic company\nGuruh mavzusidagi ariza matni.\n+998 90 111 22 33",
+                "Topic company\n+998 90 111 22 33\nGuruh mavzusidagi ariza matni.",
                 ConversationStep.CONFIRMING);
         ApplicationView topicApplication = conversationService.submit(groupId, topicUser, "topic_user");
         assertThat(topicApplication.userChatId()).isEqualTo(groupId);
