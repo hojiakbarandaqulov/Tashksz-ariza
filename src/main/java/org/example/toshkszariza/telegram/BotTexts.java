@@ -52,7 +52,7 @@ public final class BotTexts {
             case WAITING_DESCRIPTION -> "📝 Muammoni batafsil <b>tavsiflang</b> (10–2000 belgi):";
             case WAITING_APPLICATION_DETAILS -> "🏢 <b>Kompaniya nomini kiriting va arizani yozing:</b>\n\n"
                     + "Bitta xabarda 2 qator qilib yuboring:\n"
-                    + "<code>Protect\nMashinaga balon qo'yish kerak. Balon teshilgan.</code>\n\n"
+                    + "<code>Asia polymer system mchj\n6 blok yonida transformatorda nosozlik</code>\n\n"
                     + "📎 Arizani <b>rasm, video yoki video-xabar</b> shaklida ham yuborishingiz mumkin. "
                     + "Rasm/video izohiga kompaniya nomini yozing.";
             case CONFIRMING -> "Ma'lumotlarni tekshirib, «Yuborish» tugmasini bosing.";
