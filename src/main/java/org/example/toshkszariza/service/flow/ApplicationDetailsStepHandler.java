@@ -5,11 +5,7 @@ import org.example.toshkszariza.domain.UserConversation;
 import org.example.toshkszariza.service.InputValidator;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-/** Korxona, ariza va telefonni qat'iy qator soniga bog'lamasdan qabul qiladi. */
+/** Korxona nomi va ariza tavsifini foydalanuvchining bitta xabaridan ajratadi. */
 @Component
 public class ApplicationDetailsStepHandler implements ConversationStepHandler {
     private final InputValidator validator;
@@ -28,119 +24,114 @@ public class ApplicationDetailsStepHandler implements ConversationStepHandler {
         if (input.hasAttachment()) {
             return handleAttachment(conversation, input);
         }
-
-        List<String> parts = flexibleParts(input.text());
-        if (parts.isEmpty()) {
-            return StepResult.error(supportedStep(), "Kompaniya nomini va arizani yozib yuboring.");
+        String rawText = input.text() == null ? "" : input.text().trim();
+        String[] parts = rawText.split("\\R", 3);
+        if (parts.length < 2) {
+            return StepResult.error(supportedStep(),
+                    "Korxona nomi, ariza va telefonni alohida qatorlarda yozing.");
         }
 
-        StepResult organizationResult = saveOrganization(conversation, parts.get(0));
-        if (organizationResult != null) {
-            return organizationResult;
+        String organization = removePrefix(parts[0], "korxona nomi:", "korxona:", "kompaniya:");
+        String phone = null;
+        String description;
+        if (parts.length == 3) {
+            // Yangi format: korxona, ariza matni, telefon. Eski format ham qo'llab-quvvatlanadi.
+            phone = normalizePhone(parts[2]);
+            if (phone != null) {
+                description = removePrefix(parts[1], "tavsif:", "ariza:", "ariza matni:");
+            } else {
+                phone = normalizePhone(parts[1]);
+                if (phone == null) {
+                    return StepResult.error(supportedStep(),
+                            "Telefon raqamingizni ariza matnidan keyin uchinchi qatorga "
+                                    + "+998 90 123 45 67 ko'rinishida yozib qoldiring.");
+                }
+                description = removePrefix(parts[2], "tavsif:", "ariza:", "ariza matni:");
+            }
+        } else {
+            // Eski 2 qatorli format ham buzilmaydi; telefon keyingi bosqichda alohida so'raladi.
+            description = removePrefix(parts[1], "tavsif:", "ariza:", "ariza matni:");
+        }
+        if (parts.length == 3) {
+            phone = normalizePhone(parts[1]);
+            if (phone == null) {
+                return StepResult.error(supportedStep(),
+                        "Telefonni +998 90 123 45 67 ko'rinishida ikkinchi qatorga yozing.");
+            }
+            description = removePrefix(parts[2], "tavsif:", "ariza:", "ariza matni:");
+        } else {
+            // Eski 2 qatorli format ham buzilmaydi; telefon keyingi bosqichda alohida so'raladi.
+            description = removePrefix(parts[1], "tavsif:", "ariza:", "ariza matni:");
         }
 
-        saveOptionalDescriptionAndPhone(conversation, parts.subList(1, parts.size()), null);
-        return advance(conversation);
+        var organizationError = validator.validateOrganization(organization);
+        if (organizationError.isPresent()) {
+            return StepResult.error(supportedStep(), organizationError.get());
+        }
+        var descriptionError = validator.validateDescription(description);
+        if (descriptionError.isPresent()) {
+            return StepResult.error(supportedStep(), descriptionError.get());
+        }
+
+        conversation.setOrganizationName(validator.clean(organization));
+        if (phone != null) {
+            conversation.setPhone(phone);
+        }
+        conversation.setDescription(validator.clean(description));
+        conversation.moveTo(conversation.getPhone() == null
+                ? ConversationStep.WAITING_PHONE
+                : ConversationStep.CONFIRMING);
+        return StepResult.success(conversation.getStep());
     }
 
     private StepResult handleAttachment(UserConversation conversation, StepInput input) {
         conversation.setAttachment(input.attachmentType(), input.attachmentFileId());
-        String defaultDescription = input.attachmentType().defaultDescription();
-        conversation.setDescription(defaultDescription);
+        String caption = input.text() == null ? "" : input.text().trim();
+        conversation.setDescription(input.attachmentType().defaultDescription());
 
-        List<String> parts = flexibleParts(input.text());
-        if (parts.isEmpty()) {
+        if (caption.isBlank()) {
             conversation.moveTo(ConversationStep.WAITING_ORGANIZATION);
             return StepResult.success(conversation.getStep());
         }
 
-        StepResult organizationResult = saveOrganization(conversation, parts.get(0));
-        if (organizationResult != null) {
-            return organizationResult;
-        }
-
-        saveOptionalDescriptionAndPhone(conversation, parts.subList(1, parts.size()), defaultDescription);
-        return advance(conversation);
-    }
-
-    /** Qolgan satrlardan telefonni topadi, boshqa satrlarni esa bitta tavsifga birlashtiradi. */
-    private void saveOptionalDescriptionAndPhone(
-            UserConversation conversation,
-            List<String> details,
-            String defaultDescription
-    ) {
-        int phoneIndex = findPhoneIndex(details);
-        if (phoneIndex >= 0) {
-            conversation.setPhone(normalizePhone(details.get(phoneIndex)));
-        }
-
-        List<String> descriptionParts = new ArrayList<>();
-        for (int index = 0; index < details.size(); index++) {
-            if (index != phoneIndex) {
-                descriptionParts.add(details.get(index));
+        String[] parts = caption.split("\\R", 3);
+        String organization = removePrefix(parts[0], "korxona nomi:", "korxona:", "kompaniya:");
+        String phone = null;
+        String description = input.attachmentType().defaultDescription();
+        if (parts.length == 3) {
+            phone = normalizePhone(parts[1]);
+            if (phone == null) {
+                return StepResult.error(supportedStep(),
+                        "Telefonni +998 90 123 45 67 ko'rinishida ikkinchi qatorga yozing.");
+            }
+            description = removePrefix(parts[2], "tavsif:", "ariza:", "ariza matni:");
+        } else if (parts.length == 2) {
+            phone = normalizePhone(parts[1]);
+            if (phone == null) {
+                description = removePrefix(parts[1], "tavsif:", "ariza:", "ariza matni:");
             }
         }
 
-        if (!descriptionParts.isEmpty()) {
-            String description = removePrefix(
-                    String.join(" ", descriptionParts),
-                    "tavsif:", "ariza:", "ariza matni:"
-            );
-            if (validator.validateDescription(description).isEmpty()) {
-                conversation.setDescription(validator.clean(description));
-            }
-        } else if (defaultDescription != null) {
-            conversation.setDescription(defaultDescription);
-        } else {
-            conversation.setDescription(null);
+        var organizationError = validator.validateOrganization(organization);
+        if (organizationError.isPresent()) {
+            return StepResult.error(supportedStep(), organizationError.get());
         }
-    }
+        var descriptionError = validator.validateDescription(description);
+        if (descriptionError.isPresent()) {
+            return StepResult.error(supportedStep(), descriptionError.get());
+        }
 
-    private int findPhoneIndex(List<String> details) {
-        // Telefon odatda oxirida yoziladi; eski format uchun boshqa satrlar ham tekshiriladi.
-        for (int index = details.size() - 1; index >= 0; index--) {
-            if (normalizePhone(details.get(index)) != null) {
-                return index;
-            }
-        }
-        return -1;
-    }
-
-    private StepResult saveOrganization(UserConversation conversation, String value) {
-        String organization = removePrefix(value, "korxona nomi:", "korxona:", "kompaniya:");
-        var error = validator.validateOrganization(organization);
-        if (error.isPresent()) {
-            return StepResult.error(supportedStep(), error.get());
-        }
         conversation.setOrganizationName(validator.clean(organization));
-        return null;
-    }
-
-    private StepResult advance(UserConversation conversation) {
-        if (conversation.getDescription() == null) {
-            conversation.moveTo(ConversationStep.WAITING_DESCRIPTION);
-        } else if (conversation.getPhone() == null) {
-            conversation.moveTo(ConversationStep.WAITING_PHONE);
-        } else {
-            conversation.moveTo(ConversationStep.CONFIRMING);
-        }
+        conversation.setDescription(validator.clean(description));
+        conversation.moveTo(conversation.getPhone() == null
+                ? ConversationStep.WAITING_PHONE
+                : ConversationStep.CONFIRMING);
         return StepResult.success(conversation.getStep());
-    }
-
-    /** Yangi qator majburiy emas: nuqtali vergul va | belgisi ham ajratuvchi bo'la oladi. */
-    private List<String> flexibleParts(String value) {
-        if (value == null || value.isBlank()) {
-            return List.of();
-        }
-        return Arrays.stream(value.split("(?:\\R|[;|])+"))
-                .map(String::trim)
-                .filter(line -> !line.isBlank())
-                .toList();
     }
 
     private String normalizePhone(String value) {
         String withoutPrefix = removePrefix(value, "telefon:", "tel:", "raqam:", "nomer:");
-        return validator.normalizePhone(withoutPrefix).orElse(null);
+        return validator.normalizeUzbekPhone(withoutPrefix).orElse(null);
     }
 
     private String removePrefix(String value, String... prefixes) {

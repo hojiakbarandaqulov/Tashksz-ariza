@@ -45,19 +45,17 @@ public final class BotTexts {
     public static String prompt(ConversationStep step) {
         return switch (step) {
             case WAITING_FULL_NAME -> "👤 <b>F.I.O.</b>ni to'liq kiriting:\nMasalan: Aliyev Anvar Akmalovich";
-            case WAITING_PHONE -> "📞 <b>Telefon raqamingizni</b> yozib yuboring:\nMasalan: 90 123 45 67";
+            case WAITING_PHONE -> "📞 <b>Telefon raqamingizni</b> yuboring:\nMasalan: +998 90 123 45 67";
             case WAITING_ORGANIZATION -> "🏢 <b>Korxona nomini</b> kiriting:";
             case WAITING_REGION -> "📍 <b>Hududni tanlang:</b>";
             case WAITING_CATEGORY -> "📌 <b>Kategoriyani</b> tanlang:";
             case WAITING_DESCRIPTION -> "📝 Muammoni batafsil <b>tavsiflang</b> (10–2000 belgi):";
-            case WAITING_APPLICATION_DETAILS -> "🏢 <b>Kompaniya nomi va arizani yozing.</b>\n"
-                    + "Oxirida telefon raqamingizni ham yozib qoldiring. Qatorlar soni muhim emas; "
-                    + "ma'lumotlarni yangi qator yoki <code>;</code> bilan ajratishingiz mumkin.\n\n"
-                    + "Masalan:\n<code>Asia polymer system mchj; "
-                    + "6 blok yonida transformatorda nosozlik; 90 123 45 67</code>\n\n"
-                    + "Ma'lumotni birma-bir yuborsangiz, bot qolgan qismini o'zi so'raydi.\n\n"
+            case WAITING_APPLICATION_DETAILS -> "🏢 <b>Kompaniya nomi, telefon va arizani yozing:</b>\n\n"
+                    + "Bitta xabarda 3 qator qilib yuboring:\n"
+                    + "<code>Asia polymer system mchj\n+998 90 123 45 67\n"
+                    + "6 blok yonida transformatorda nosozlik</code>\n\n"
                     + "📎 Arizani <b>rasm, video yoki video-xabar</b> shaklida ham yuborishingiz mumkin. "
-                    + "Rasm/video izohida ham qat'iy format talab qilinmaydi.";
+                    + "Rasm/video izohiga kompaniya, telefon va tavsifni 3 qatorda yozing.";
             case CONFIRMING -> "Ma'lumotlarni tekshirib, «Yuborish» tugmasini bosing.";
             case IDLE -> "Yangi ariza boshlash uchun pastdagi tugmani bosing.";
         };
