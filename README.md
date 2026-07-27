@@ -6,13 +6,13 @@ Spring Boot va Java 17 da yozilgan arizalarni qabul qilish boti. Foydalanuvchi a
 
 - Buyurtmachi belgilagan 9 ta KSZ hududini chiroyli tugmalar orqali tanlash.
 - Hududni har bir foydalanuvchidan faqat bir marta so'rash va keyingi arizalarda avtomatik qo'yish.
-- Korxona nomi, ariza tavsifi va telefon raqamini bitta xabarda, uch qatorda qabul qilish.
+- Korxona nomi, ariza tavsifi va telefon raqamini qat'iy qator sonisiz qabul qilish.
 - Har bir Telegram foydalanuvchisiga faqat o'z arizalarini `/my` va `📋 Arizalarim` orqali ko'rsatish.
 - Admin yozgan umumiy xabarni preview va tasdiqlashdan keyin barcha userlarga fon rejimida yuborish.
 - Ariza qabul qilinganda yoki qaytarilganda natijani aynan ariza egasiga yetkazish.
-- Har bir maydonni tekshirish va telefonni `+998 XX XXX XX XX` formatiga keltirish.
+- Har bir maydonni tekshirish va telefonni `+998` prefiksini majburlamasdan qabul qilish.
 - Yuborishdan oldin arizani ko'rish va istalgan bitta maydonni tahrirlash.
-- Har bir yangi arizani barcha adminlarning private chatiga avtomatik yuborish va `Qabul qilish` / `Qaytarish` tugmalarini chiqarish.
+- Admin uchun yangi ariza xabari va `Qabul qilish` / `Qaytarish` tugmalari.
 - Rad etish sababini majburiy kiritish.
 - Qaytarilgan arizani tuzatib, o'sha raqam bilan yangi tahrir sifatida yuborish.
 - Foydalanuvchining oxirgi 10 ta arizasi va adminning navbatdagi 10 ta arizasini ko'rish.
@@ -62,7 +62,7 @@ Qo'shimcha admin qo'shish tartibi:
 2. Bosh admin `➕ Admin qo'shish` tugmasini bosadi va olingan raqamli ID ni yuboradi.
 3. Yangi admin darhol arizalarni qabul qilish/qaytarish va umumiy xabar yuborish huquqini oladi.
 
-Bot shaxsiy chat, guruh va Telegram mavzularidagi arizalarni qabul qiladi. `/start`, `/new`, `/my`, `/id`, `/cancel`, `/help` buyruqlari mavjud. Admin uchun `/broadcast`, `/week`; bosh admin uchun `/admins`, `/addadmin`, `/bind` buyruqlari ishlaydi. Yangi arizalar barcha adminlarga avtomatik keladi.
+Bot shaxsiy chat, guruh va Telegram mavzularidagi arizalarni qabul qiladi. `/start`, `/new`, `/my`, `/id`, `/cancel`, `/help` buyruqlari mavjud. Admin uchun `/pending`, `/broadcast`, `/week`; bosh admin uchun `/admins`, `/addadmin`, `/bind` buyruqlari ishlaydi.
 
 ## TOSHKSZ Ariza guruhini ulash
 

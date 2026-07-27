@@ -30,20 +30,26 @@ public class InputValidator {
         return Optional.empty();
     }
 
-    /** Telefonni yagona +998 XX XXX XX XX ko'rinishiga keltiradi. */
-    public Optional<String> normalizeUzbekPhone(String value) {
+    /** Telefonni +998 prefiksiga bog'lamasdan, bazaga xavfsiz uzunlikda tayyorlaydi. */
+    public Optional<String> normalizePhone(String value) {
         if (value == null) {
             return Optional.empty();
         }
-        String digits = value.replaceAll("\\D", "");
-        if (digits.length() == 9) {
-            digits = "998" + digits;
-        }
-        if (digits.length() != 12 || !digits.startsWith("998")) {
+        String phone = clean(value);
+        if (phone.isBlank() || !phone.matches("[+()\\d.\\-\\s]+")) {
             return Optional.empty();
         }
-        return Optional.of("+998 " + digits.substring(3, 5) + " " + digits.substring(5, 8)
-                + " " + digits.substring(8, 10) + " " + digits.substring(10, 12));
+
+        String digits = phone.replaceAll("\\D", "");
+        if (digits.isBlank()) {
+            return Optional.empty();
+        }
+
+        // Ustun varchar(20): uzun format bo'lsa faqat raqamlar va boshidagi '+' saqlanadi.
+        if (phone.length() > 20) {
+            phone = (phone.startsWith("+") ? "+" : "") + digits;
+        }
+        return phone.length() <= 20 ? Optional.of(phone) : Optional.empty();
     }
 
     public String clean(String value) {

@@ -19,9 +19,7 @@ public final class BotTexts {
     }
 
     public static String welcome(String firstName, boolean admin) {
-        String adminText = admin
-                ? "\n\nSiz administrator sifatida kirdingiz. Yangi arizalar sizga avtomatik yuboriladi."
-                : "";
+        String adminText = admin ? "\n\nSiz administrator sifatida kirdingiz. /pending — navbatdagi arizalar." : "";
         return "Assalomu alaykum, <b>" + escape(firstName) + "</b>!\n\n"
                 + "Bu bot orqali TOSHKSZga ariza yuborishingiz va uning holatini kuzatishingiz mumkin."
                 + adminText;
@@ -29,7 +27,7 @@ public final class BotTexts {
 
     public static String help(boolean admin, boolean superAdmin) {
         String adminCommand = admin
-                ? "\n/broadcast — barcha userlarga xabar"
+                ? "\n/pending — ko'rib chiqilmagan arizalar\n/broadcast — barcha userlarga xabar"
                         + "\n/week — oxirgi 7 kunlik hisobot"
                 : "";
         String superAdminCommand = superAdmin
@@ -47,19 +45,19 @@ public final class BotTexts {
     public static String prompt(ConversationStep step) {
         return switch (step) {
             case WAITING_FULL_NAME -> "👤 <b>F.I.O.</b>ni to'liq kiriting:\nMasalan: Aliyev Anvar Akmalovich";
-            case WAITING_PHONE -> "📞 <b>Telefon raqamingizni</b> yuboring:\nMasalan: +998 90 123 45 67";
+            case WAITING_PHONE -> "📞 <b>Telefon raqamingizni</b> yozib yuboring:\nMasalan: 90 123 45 67";
             case WAITING_ORGANIZATION -> "🏢 <b>Korxona nomini</b> kiriting:";
             case WAITING_REGION -> "📍 <b>Hududni tanlang:</b>";
             case WAITING_CATEGORY -> "📌 <b>Kategoriyani</b> tanlang:";
             case WAITING_DESCRIPTION -> "📝 Muammoni batafsil <b>tavsiflang</b> (10–2000 belgi):";
-            case WAITING_APPLICATION_DETAILS -> "🏢 <b>Kompaniya nomi va arizani yozing, "
-                    + "arizadan keyin telefon raqamingizni ham yozib qoldiring:</b>\n\n"
-                    + "Bitta xabarda 3 qator qilib yuboring:\n"
-                    + "<code>Asia polymer system mchj\n"
-                    + "6 blok yonida transformatorda nosozlik\n"
-                    + "Shu tartibda nomeringizni yozib qoldiring: +998 90 123 45 67</code>\n\n"
+            case WAITING_APPLICATION_DETAILS -> "🏢 <b>Kompaniya nomi va arizani yozing.</b>\n"
+                    + "Oxirida telefon raqamingizni ham yozib qoldiring. Qatorlar soni muhim emas; "
+                    + "ma'lumotlarni yangi qator yoki <code>;</code> bilan ajratishingiz mumkin.\n\n"
+                    + "Masalan:\n<code>Asia polymer system mchj; "
+                    + "6 blok yonida transformatorda nosozlik; 90 123 45 67</code>\n\n"
+                    + "Ma'lumotni birma-bir yuborsangiz, bot qolgan qismini o'zi so'raydi.\n\n"
                     + "📎 Arizani <b>rasm, video yoki video-xabar</b> shaklida ham yuborishingiz mumkin. "
-                    + "Rasm/video izohiga kompaniya, tavsif va telefonni 3 qatorda yozing.";
+                    + "Rasm/video izohida ham qat'iy format talab qilinmaydi.";
             case CONFIRMING -> "Ma'lumotlarni tekshirib, «Yuborish» tugmasini bosing.";
             case IDLE -> "Yangi ariza boshlash uchun pastdagi tugmani bosing.";
         };
@@ -71,9 +69,9 @@ public final class BotTexts {
                 : "✏️ <b>Ariza #" + number(draft.editingApplicationId()) + " — yangi tahrir</b>";
         return heading + ":\n\n"
                 + "🗺 <b>Hudud:</b> " + escape(draft.region() == null ? "" : draft.region().label()) + "\n"
+                + "📞 <b>Telefon:</b> " + escape(phoneLabel(draft.phone())) + "\n"
                 + "🏢 <b>Korxona nomi:</b> " + escape(draft.organizationName()) + "\n"
-                + "📝 <b>Tavsif:</b> " + escape(draft.description()) + "\n"
-                + "📞 <b>Telefon:</b> " + escape(phoneLabel(draft.phone()))
+                + "📝 <b>Tavsif:</b> " + escape(draft.description())
                 + attachmentLine(draft.attachmentType()) + "\n\n"
                 + "Ma'lumotlarni tekshiring.";
     }
@@ -82,9 +80,9 @@ public final class BotTexts {
         StringBuilder text = new StringBuilder("📥 <b>Yangi ariza:</b> #")
                 .append(number(application.id())).append("\n\n")
                 .append("🗺 <b>Hudud:</b> ").append(escape(regionLabel(application))).append("\n")
+                .append("📞 <b>Telefon:</b> ").append(escape(phoneLabel(application.phone()))).append("\n")
                 .append("🏢 <b>Korxona nomi:</b> ").append(escape(application.organizationName())).append("\n")
-                .append("📝 <b>Tavsif:</b> ").append(escape(application.description())).append("\n")
-                .append("📞 <b>Telefon:</b> ").append(escape(phoneLabel(application.phone())))
+                .append("📝 <b>Tavsif:</b> ").append(escape(application.description()))
                 .append(attachmentLine(application.attachmentType())).append("\n\n")
                 .append(statusIcon(application.status())).append(" <b>Holat:</b> ")
                 .append(escape(application.status().label())).append("\n")

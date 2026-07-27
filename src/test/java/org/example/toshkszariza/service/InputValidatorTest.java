@@ -8,17 +8,18 @@ class InputValidatorTest {
     private final InputValidator validator = new InputValidator();
 
     @Test
-    void normalizesUzbekPhoneNumber() {
-        assertThat(validator.normalizeUzbekPhone("+998 (90) 123-45-67"))
-                .contains("+998 90 123 45 67");
-        assertThat(validator.normalizeUzbekPhone("90 123 45 67"))
-                .contains("+998 90 123 45 67");
+    void acceptsPhoneWithoutForcingUzbekPrefix() {
+        assertThat(validator.normalizePhone("+998 (90) 123-45-67"))
+                .contains("+998 (90) 123-45-67");
+        assertThat(validator.normalizePhone("90 123 45 67"))
+                .contains("90 123 45 67");
+        assertThat(validator.normalizePhone("+7 999 123 45 67"))
+                .contains("+7 999 123 45 67");
     }
 
     @Test
-    void rejectsForeignOrShortPhoneNumber() {
-        assertThat(validator.normalizeUzbekPhone("+7 999 123 45 67")).isEmpty();
-        assertThat(validator.normalizeUzbekPhone("99890")).isEmpty();
+    void rejectsTextWithoutAnyPhoneNumber() {
+        assertThat(validator.normalizePhone("telefon yo'q")).isEmpty();
     }
 
     @Test

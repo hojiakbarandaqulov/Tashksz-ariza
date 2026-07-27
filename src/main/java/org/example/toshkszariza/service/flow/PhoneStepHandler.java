@@ -20,9 +20,9 @@ public class PhoneStepHandler implements ConversationStepHandler {
 
     @Override
     public StepResult handle(UserConversation conversation, StepInput input) {
-        var phone = validator.normalizeUzbekPhone(input.phoneValue());
+        var phone = validator.normalizePhone(input.phoneValue());
         if (phone.isEmpty()) {
-            return StepResult.error(supportedStep(), "Telefonni +998 90 123 45 67 ko'rinishida yuboring.");
+            return StepResult.error(supportedStep(), "Telefon raqamingizni yozib yuboring.");
         }
         conversation.setPhone(phone.get());
         if (conversation.getRegion() == null) {

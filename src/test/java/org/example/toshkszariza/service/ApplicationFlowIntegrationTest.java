@@ -41,7 +41,7 @@ class ApplicationFlowIntegrationTest {
         conversationService.startNew(CHAT_ID, USER_ID);
         assertStep("Chilonzor KSZ", ConversationStep.WAITING_APPLICATION_DETAILS);
         assertStep(
-                "Toshkent shahar korxonasi\nElektr tarmog'ida uzilish kuzatilmoqda.\n+998 90 123 45 67",
+                "Toshkent shahar korxonasi\n+998 90 123 45 67\nElektr tarmog'ida uzilish kuzatilmoqda.",
                 ConversationStep.CONFIRMING
         );
 
@@ -145,7 +145,7 @@ class ApplicationFlowIntegrationTest {
         conversationService.startNew(groupId, topicUser);
         assertStep(topicUser, "Bektemir KSZ", ConversationStep.WAITING_APPLICATION_DETAILS);
         assertStep(topicUser,
-                "Topic company\nGuruh mavzusidagi ariza matni.\n+998 90 111 22 33",
+                "Topic company\n+998 90 111 22 33\nGuruh mavzusidagi ariza matni.",
                 ConversationStep.CONFIRMING);
         ApplicationView topicApplication = conversationService.submit(groupId, topicUser, "topic_user");
         assertThat(topicApplication.userChatId()).isEqualTo(groupId);
@@ -206,7 +206,43 @@ class ApplicationFlowIntegrationTest {
         assertStep(userId, "90 321 45 67", ConversationStep.CONFIRMING);
 
         ApplicationView submitted = conversationService.submit(userId, userId, "legacy_user");
-        assertThat(submitted.phone()).isEqualTo("+998 90 321 45 67");
+        assertThat(submitted.phone()).isEqualTo("90 321 45 67");
+    }
+
+    @Test
+    void applicationDetailsDoNotRequireExactlyThreeLinesOrPlus998() {
+        long userId = 602L;
+        conversationService.startNew(userId, userId);
+        assertStep(userId, "Yunusobod KSZ", ConversationStep.WAITING_APPLICATION_DETAILS);
+
+        // Faqat kompaniya yuborilsa, bot qolgan ma'lumotlarni ketma-ket so'raydi.
+        assertStep(userId, "Asia polymer system mchj", ConversationStep.WAITING_DESCRIPTION);
+        assertStep(userId,
+                "6 blok yonida transformatorda nosozlik",
+                ConversationStep.WAITING_PHONE);
+        assertStep(userId, "90 777 66 55", ConversationStep.CONFIRMING);
+
+        ApplicationView submitted = conversationService.submit(userId, userId, "flexible_user");
+        assertThat(submitted.organizationName()).isEqualTo("Asia polymer system mchj");
+        assertThat(submitted.description()).isEqualTo("6 blok yonida transformatorda nosozlik");
+        assertThat(submitted.phone()).isEqualTo("90 777 66 55");
+    }
+
+    @Test
+    void allApplicationDetailsCanBeSentOnOneLine() {
+        long userId = 603L;
+        conversationService.startNew(userId, userId);
+        assertStep(userId, "Bektemir KSZ", ConversationStep.WAITING_APPLICATION_DETAILS);
+        assertStep(
+                userId,
+                "Bir qator korxona; Transformator qizib ketmoqda; 71 200 00 00",
+                ConversationStep.CONFIRMING
+        );
+
+        ApplicationView submitted = conversationService.submit(userId, userId, "one_line_user");
+        assertThat(submitted.organizationName()).isEqualTo("Bir qator korxona");
+        assertThat(submitted.description()).isEqualTo("Transformator qizib ketmoqda");
+        assertThat(submitted.phone()).isEqualTo("71 200 00 00");
     }
 
     private void assertStep(String input, ConversationStep expectedStep) {
