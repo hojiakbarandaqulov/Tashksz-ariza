@@ -1,0 +1,23 @@
+[Unit]
+Description=TOSHKSZ Ariza Telegram Bot
+Wants=network-online.target
+After=network-online.target postgresql.service
+
+[Service]
+Type=simple
+User=toshkszbot
+Group=toshkszbot
+WorkingDirectory=/opt/toshksz-bot
+EnvironmentFile=/etc/toshksz-bot/toshksz-bot.env
+ExecStart=/usr/bin/java -Xms128m -Xmx384m -jar /opt/toshksz-bot/app.jar
+SuccessExitStatus=143
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

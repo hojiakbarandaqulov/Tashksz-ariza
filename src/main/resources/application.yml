@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: TOSHKSZ-Ariza
+  datasource:
+    # Lokal PostgreSQL: pgAdmin'da ushbu bazani avval yaratib, Save tugmasini bosing.
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/Tashksz-bot-db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:1234}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate.jdbc.time_zone: UTC
+
+telegram:
+  bot:
+    username: ${TELEGRAM_BOT_USERNAME:ToshKSZArizaQabul2026Bot}
+    token: ${TELEGRAM_BOT_TOKEN:8888304403:AAGUaog0FHdKVsLZXCSKxlWyRNdD4bnxJHs}
+    # 0 bo'lsa birinchi /start yuborgan odam bosh admin bo'lib yaratiladi.
+    admin-id: ${TELEGRAM_ADMIN_ID:0}
+    auto-create-admin: ${TELEGRAM_AUTO_CREATE_ADMIN:true}
+    enabled: ${TELEGRAM_BOT_ENABLED:true}
+    long-poll-timeout-seconds: ${TELEGRAM_LONG_POLL_TIMEOUT:25}
+    poll-delay-ms: ${TELEGRAM_POLL_DELAY_MS:300}
+    # Har dushanba 09:00 (Asia/Tashkent) da bog'langan guruhga haftalik hisobot yuboriladi.
+    weekly-report-cron: ${TELEGRAM_WEEKLY_REPORT_CRON:0 0 9 * * MON}
+
+logging:
+  level:
+    org.example.toshkszariza: INFO
