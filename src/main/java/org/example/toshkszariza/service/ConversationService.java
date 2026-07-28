@@ -90,13 +90,6 @@ public class ConversationService {
             String attachmentFileId
     ) {
         UserConversation conversation = getOrCreate(chatId, userId);
-        // Eski versiyada telefon kutish bosqichida qolgan arizalarni telefonsiz tasdiqlashga o'tkazadi.
-        if (conversation.getStep() == ConversationStep.WAITING_PHONE
-                && conversation.getOrganizationName() != null
-                && conversation.getDescription() != null) {
-            conversation.moveTo(ConversationStep.CONFIRMING);
-            return new FlowOutcome(StepResult.success(ConversationStep.CONFIRMING), toDraft(conversation));
-        }
         ConversationStepHandler handler = handlers.get(conversation.getStep());
         if (handler == null) {
             return new FlowOutcome(
@@ -160,19 +153,32 @@ public class ConversationService {
     @Transactional
     public ApplicationView submit(long chatId, long userId, String telegramUsername) {
         UserConversation conversation = getOwnedConversation(chatId, userId);
-        if (conversation.getStep() != ConversationStep.CONFIRMING || !isComplete(conversation)) {
+        if (conversation.getStep() != ConversationStep.CONFIRMING) {
+            throw new BotBusinessException("Ariza ma'lumotlari hali to'liq emas.");
+        }
+        if (conversation.getPhone() == null || conversation.getPhone().isBlank()) {
+            throw new BotBusinessException("Ariza yuborish uchun telefon raqami majburiy.");
+        }
+        if (telegramUsername == null || telegramUsername.isBlank()) {
+            throw new BotBusinessException(
+                    "Ariza yuborish uchun Telegram username majburiy. Telegram sozlamalarida username o'rnating."
+            );
+        }
+        if (!isComplete(conversation)) {
             throw new BotBusinessException("Ariza ma'lumotlari hali to'liq emas.");
         }
 
+        String normalizedUsername = telegramUsername.trim();
+
         ServiceApplication application;
         if (conversation.getEditingApplicationId() == null) {
-            application = ServiceApplication.create(conversation, telegramUsername);
+            application = ServiceApplication.create(conversation, normalizedUsername);
         } else {
             application = findApplication(conversation.getEditingApplicationId());
             if (application.getTelegramUserId() != userId) {
                 throw new BotBusinessException("Bu arizani qayta yuborishga ruxsat yo'q.");
             }
-            application.resubmit(conversation, telegramUsername);
+            application.resubmit(conversation, normalizedUsername);
         }
         application = applicationRepository.save(application);
         ApplicationView view = ApplicationView.from(application);
@@ -207,7 +213,9 @@ public class ConversationService {
     private boolean isComplete(UserConversation conversation) {
         return conversation.getRegion() != null
                 && conversation.getOrganizationName() != null
-                && conversation.getDescription() != null;
+                && conversation.getDescription() != null
+                && conversation.getPhone() != null
+                && !conversation.getPhone().isBlank();
     }
 
     private DraftView toDraft(UserConversation conversation) {

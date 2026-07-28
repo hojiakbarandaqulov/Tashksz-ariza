@@ -35,7 +35,7 @@ public class ApplicationDetailsStepHandler implements ConversationStepHandler {
             return StepResult.error(supportedStep(), "Arizangizni yozib yuboring.");
         }
 
-        // Bitta oddiy xabarning o'zi ariza hisoblanadi; telefon keyin alohida so'ralmaydi.
+        // Bitta oddiy xabar tavsif sifatida saqlanadi, telefon esa keyingi majburiy bosqichda so'raladi.
         if (parts.size() == 1) {
             return savePlainApplication(conversation, parts.get(0));
         }
@@ -57,8 +57,7 @@ public class ApplicationDetailsStepHandler implements ConversationStepHandler {
         List<String> parts = flexibleParts(input.text());
         if (parts.isEmpty()) {
             conversation.setOrganizationName(ORGANIZATION_NOT_PROVIDED);
-            conversation.moveTo(ConversationStep.CONFIRMING);
-            return StepResult.success(ConversationStep.CONFIRMING);
+            return advance(conversation);
         }
 
         // Media izohidagi bitta matn ham tayyor ariza sifatida qabul qilinadi.
@@ -68,8 +67,7 @@ public class ApplicationDetailsStepHandler implements ConversationStepHandler {
             if (validator.validateDescription(description).isEmpty()) {
                 conversation.setDescription(validator.clean(description));
             }
-            conversation.moveTo(ConversationStep.CONFIRMING);
-            return StepResult.success(ConversationStep.CONFIRMING);
+            return advance(conversation);
         }
 
         StepResult organizationResult = saveOrganization(conversation, parts.get(0));
@@ -137,6 +135,8 @@ public class ApplicationDetailsStepHandler implements ConversationStepHandler {
     private StepResult advance(UserConversation conversation) {
         if (conversation.getDescription() == null) {
             conversation.moveTo(ConversationStep.WAITING_DESCRIPTION);
+        } else if (conversation.getPhone() == null || conversation.getPhone().isBlank()) {
+            conversation.moveTo(ConversationStep.WAITING_PHONE);
         } else {
             conversation.moveTo(ConversationStep.CONFIRMING);
         }
@@ -151,8 +151,7 @@ public class ApplicationDetailsStepHandler implements ConversationStepHandler {
         }
         conversation.setOrganizationName(ORGANIZATION_NOT_PROVIDED);
         conversation.setDescription(validator.clean(description));
-        conversation.moveTo(ConversationStep.CONFIRMING);
-        return StepResult.success(ConversationStep.CONFIRMING);
+        return advance(conversation);
     }
 
     /** Yangi qator majburiy emas: nuqtali vergul va | belgisi ham ajratuvchi bo'la oladi. */

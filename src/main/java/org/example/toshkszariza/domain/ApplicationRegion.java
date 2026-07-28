@@ -14,6 +14,10 @@ public enum ApplicationRegion {
     UCHTEPA_KSZ("Uchtepa KSZ", true),
     YAKKASAROY_KSZ("Yakkasaroy KSZ", true),
     YUNUSOBOD_KSZ("Yunusobod KSZ", true),
+    UCHTEPA_YOSHLAR_SZ("Uchtepa yoshlar SZ", true),
+    YASHNOBOD_YOSHLAR_SZ("Yashnobod yoshlar SZ", true),
+    BEKTEMIR_YOSHLAR_SZ("Bektemir yoshlar SZ", true),
+    YANGIHAYOT_YOSHLAR_SZ("Yangihayot yoshlar SZ", true),
 
     // Avval tanlangan tumanlar bazadagi eski arizalarni ochish uchun saqlanadi.
     BEKTEMIR_DISTRICT("Bektemir tumani", false),

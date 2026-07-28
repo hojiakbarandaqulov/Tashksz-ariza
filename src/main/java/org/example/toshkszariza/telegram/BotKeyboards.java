@@ -53,7 +53,7 @@ public final class BotKeyboards {
         );
     }
 
-    /** Faqat buyurtmachi belgilagan 9 ta KSZ hududi chiqariladi. */
+    /** Faqat buyurtmachi belgilagan 13 ta KSZ/SZ hududi chiqariladi. */
     public static Map<String, Object> regions() {
         return Map.of(
                 "keyboard", List.of(
@@ -63,6 +63,8 @@ public final class BotKeyboards {
                         List.of(button(ApplicationRegion.CHILONZOR_KSZ.label()), button(ApplicationRegion.UCHTEPA_KSZ.label())),
                         List.of(button(ApplicationRegion.CHILONZOR_2_SOFTPLAST_KSZ.label())),
                         List.of(button(ApplicationRegion.YAKKASAROY_KSZ.label()), button(ApplicationRegion.YUNUSOBOD_KSZ.label())),
+                        List.of(button(ApplicationRegion.UCHTEPA_YOSHLAR_SZ.label()), button(ApplicationRegion.YASHNOBOD_YOSHLAR_SZ.label())),
+                        List.of(button(ApplicationRegion.BEKTEMIR_YOSHLAR_SZ.label()), button(ApplicationRegion.YANGIHAYOT_YOSHLAR_SZ.label())),
                         List.of(button("❌ Bekor qilish"))
                 ),
                 "resize_keyboard", true,

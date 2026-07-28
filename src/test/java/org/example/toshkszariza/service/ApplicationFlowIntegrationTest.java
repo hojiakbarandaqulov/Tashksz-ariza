@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.example.toshkszariza.telegram.model.TelegramChat;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @Transactional
@@ -117,9 +118,10 @@ class ApplicationFlowIntegrationTest {
                 ApplicationAttachmentType.VIDEO_NOTE,
                 "video-note-file-id"
         );
-        assertThat(videoNote.result().currentStep()).isEqualTo(ConversationStep.CONFIRMING);
+        assertThat(videoNote.result().currentStep()).isEqualTo(ConversationStep.WAITING_PHONE);
+        assertStep(videoNoteUser, "+998 90 444 55 66", ConversationStep.CONFIRMING);
         ApplicationView submitted = conversationService.submit(videoNoteUser, videoNoteUser, "video_note_user");
-        assertThat(submitted.phone()).isNull();
+        assertThat(submitted.phone()).isEqualTo("+998 90 444 55 66");
         assertThat(submitted.attachmentType()).isEqualTo(ApplicationAttachmentType.VIDEO_NOTE);
         assertThat(submitted.attachmentFileId()).isEqualTo("video-note-file-id");
 
@@ -192,18 +194,22 @@ class ApplicationFlowIntegrationTest {
     }
 
     @Test
-    void twoLineFormatIsConfirmedWithoutAskingPhone() {
+    void twoLineFormatRequiresPhoneBeforeConfirmation() {
         long userId = 601L;
         conversationService.startNew(userId, userId);
         assertStep(userId, "Uchtepa KSZ", ConversationStep.WAITING_APPLICATION_DETAILS);
         assertStep(
                 userId,
                 "Eski format korxonasi\nTransformator yonida texnik nosozlik bor.",
-                ConversationStep.CONFIRMING
+                ConversationStep.WAITING_PHONE
         );
 
+        assertThatThrownBy(() -> conversationService.submit(userId, userId, "legacy_user"))
+                .isInstanceOf(BotBusinessException.class)
+                .hasMessageContaining("to'liq emas");
+        assertStep(userId, "90 777 66 55", ConversationStep.CONFIRMING);
         ApplicationView submitted = conversationService.submit(userId, userId, "legacy_user");
-        assertThat(submitted.phone()).isNull();
+        assertThat(submitted.phone()).isEqualTo("90 777 66 55");
     }
 
     @Test
@@ -214,12 +220,13 @@ class ApplicationFlowIntegrationTest {
 
         assertStep(userId,
                 "6 blok yonida transformatorda nosozlik",
-                ConversationStep.CONFIRMING);
+                ConversationStep.WAITING_PHONE);
 
+        assertStep(userId, "+998 93 111 22 33", ConversationStep.CONFIRMING);
         ApplicationView submitted = conversationService.submit(userId, userId, "flexible_user");
         assertThat(submitted.organizationName()).isEqualTo("Ko'rsatilmagan");
         assertThat(submitted.description()).isEqualTo("6 blok yonida transformatorda nosozlik");
-        assertThat(submitted.phone()).isNull();
+        assertThat(submitted.phone()).isEqualTo("+998 93 111 22 33");
     }
 
     @Test
@@ -237,6 +244,22 @@ class ApplicationFlowIntegrationTest {
         assertThat(submitted.organizationName()).isEqualTo("Bir qator korxona");
         assertThat(submitted.description()).isEqualTo("Transformator qizib ketmoqda");
         assertThat(submitted.phone()).isEqualTo("71 200 00 00");
+    }
+
+    @Test
+    void submissionRequiresTelegramUsername() {
+        long userId = 604L;
+        conversationService.startNew(userId, userId);
+        assertStep(userId, "Bektemir KSZ", ConversationStep.WAITING_APPLICATION_DETAILS);
+        assertStep(
+                userId,
+                "Username test korxonasi\n+998 90 123 00 00\nTelegram username tekshiruvi uchun ariza.",
+                ConversationStep.CONFIRMING
+        );
+
+        assertThatThrownBy(() -> conversationService.submit(userId, userId, null))
+                .isInstanceOf(BotBusinessException.class)
+                .hasMessageContaining("Telegram username majburiy");
     }
 
     private void assertStep(String input, ConversationStep expectedStep) {
