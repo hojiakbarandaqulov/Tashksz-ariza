@@ -4,7 +4,7 @@ Spring Boot va Java 17 da yozilgan arizalarni qabul qilish boti. Foydalanuvchi a
 
 ## Imkoniyatlar
 
-- Buyurtmachi belgilagan 9 ta KSZ hududini chiroyli tugmalar orqali tanlash.
+- Buyurtmachi belgilagan 13 ta KSZ/SZ hududini chiroyli tugmalar orqali tanlash.
 - Hududni har bir foydalanuvchidan faqat bir marta so'rash va keyingi arizalarda avtomatik qo'yish.
 - Hudud tanlangandan keyin foydalanuvchining bitta oddiy xabarini tayyor ariza sifatida qabul qilish.
 - Har bir Telegram foydalanuvchisiga faqat o'z arizalarini `/my` va `📋 Arizalarim` orqali ko'rsatish.
